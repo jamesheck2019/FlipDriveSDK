@@ -4,6 +4,14 @@
 `NuGet:`
 [![NuGet](https://img.shields.io/nuget/v/DeQmaTech.FlipDriveSDK.svg?style=flat-square&logo=nuget)](https://www.nuget.org/packages/DeQmaTech.FlipDriveSDK)<br>
 
+**Features**
+* Assemblies for .NET 4.5.2 and .NET Standard 2.0 and .NET Core 2.1
+* Just one external reference (Newtonsoft.Json)
+* Easy installation using NuGet
+* Upload/Download tracking support
+* Proxy Support
+* Upload/Download cancellation support
+
 # Functions:
 * UserInfo
 * List
@@ -26,65 +34,87 @@
 
 
 # Example:
-**get access token**
 ```vb.net
-Dim rslt = FlipDriveSDK.GetToken.Get_Token("username", "password")
+    Sub SetClient()
+        Dim MyClient As FlipDriveSDK.IClient = New FlipDriveSDK.FClient("user", "pass")
+    End Sub
 ```
-
-**set client**
 ```vb.net
-Dim cLENT As FlipDriveSDK.IClient = New FlipDriveSDK.FClient("token", Nothing, TimeSpan.FromMinutes(60), False)
-OR
-Dim cLENT As FlipDriveSDK.IClient = New FlipDriveSDK.FClient("username", "password", Nothing, TimeSpan.FromMinutes(60), False)
+    Sub SetClientWithOptions()
+        Dim Optians As New FlipDriveSDK.ConnectionSettings With {.CloseConnection = True, .TimeOut = TimeSpan.FromMinutes(30), .Proxy = New FlipDriveSDK.ProxyConfig With {.ProxyIP = "172.0.0.0", .ProxyPort = 80, .ProxyUsername = "myname", .ProxyPassword = "myPass", .SetProxy = True}}
+        Dim MyClient As FlipDriveSDK.IClient = New FlipDriveSDK.FClient("tkn.apiUrl", "tkn.authorizationToken", Optians)
+    End Sub
 ```
-
-**set client with proxy**
 ```vb.net
-Dim roxy = New FlipDriveSDK.ProxyConfig With {.ProxyIP = "172.0.0.0", .ProxyPort = 80, .ProxyUsername = "myname", .ProxyPassword = "myPass", .SetProxy = true}
-Dim cLENT As FlipDriveSDK.IClient = New FlipDriveSDK.FClient("username", "password", roxy, TimeSpan.FromMinutes(60), False)
+    Async Sub ListFilesAndFolders()
+        Dim result = Await MyClient.List("folder id / root=null", FilterEnum.all, SortEnum.Name, 500)
+        For Each vid In result.data.items
+            DataGridView1.Rows.Add(vid.name, vid.ID, vid.link, vid.size)
+        Next
+    End Sub
 ```
-
-**List**
 ```vb.net
-Dim RSLT = Await cLENT.List("", FlipDriveSDK.utilitiez.FilterEnum.all, FlipDriveSDK.utilitiez.SortEnum.Name, 1000)
-For Each fold In RSLT.data.items
-    DataGridView1.Rows.Add(fold.ID, fold.name, fold.link, fold.extension, fold.FileOrFolder, fold.direct, ISisFunctions.Bytes_To_KbMbGb.SetBytes(fold.size), fold.link)
-Next
+    Async Sub DeleteFileOrFolder()
+        Dim result = Await MyClient.Delete(New List(Of String) From {"file or folder id"})
+    End Sub
 ```
-
-**create new Folder**
 ```vb.net
-Dim RSLT = Await cLENT.CreateNewFolder("parent folder id", "gogo2")
+    Async Sub MoveFileOrFolder()
+        Dim result = Await MyClient.Move(New List(Of String) From {"file or folder id"}, "folder id")
+    End Sub
 ```
-
-**delete file/folder**
 ```vb.net
-Dim RSLT = Await cLENT.Delete("file/folder ID")
+    Async Sub CreateNewFolder()
+        Dim result = Await MyClient.CreateNewFolder("parent folder id", "new folder name")
+    End Sub
 ```
-
-**upload local file with progress tracking**
 ```vb.net
-Try
-Dim UploadCancellationToken As New Threading.CancellationTokenSource()
-Dim _ReportCls As New Progress(Of FlipDriveSDK.ReportStatus)(Sub(ReportClass As FlipDriveSDK.ReportStatus)
-                      Label1.Text = String.Format("{0}/{1}", (ReportClass.BytesTransferred),(ReportClass.TotalBytes))
-                      ProgressBar1.Value = CInt(ReportClass.ProgressPercentage)
-                      Label2.Text = CStr(ReportClass.TextStatus)
-                      End Sub)
-Dim RSLT = Await cLENT.Upload("J:\VB.jpg", UploadTypes.FilePath, "folder id", "VB.jpg", _ReportCls, UploadCancellationToken.Token)
-DataGridView1.Rows.Add(RSLT.name)
-Catch ex As FlipDriveSDK.PushbulletException
-      MsgBox(ex.Message)
-End Try
+    Async Sub RenameFileOrFolder()
+        Dim result = Await MyClient.Rename("file or folder id id", "new name")
+    End Sub
 ```
-
-**download file with progress tracking**
 ```vb.net
-Dim UploadCancellationToken As New Threading.CancellationTokenSource()
-Dim _ReportCls As New Progress(Of FlipDriveSDK.ReportStatus)(Sub(ReportClass As FlipDriveSDK.ReportStatus)
-               Label1.Text = String.Format("{0}/{1}", (ReportClass.BytesTransferred), (ReportClass.TotalBytes))
-               ProgressBar1.Value = CInt(ReportClass.ProgressPercentage)
-               Label2.Text =  CStr(ReportClass.TextStatus)
-               End Sub)
-Await cLENT.Download("file id", "J:\", "helo.jpg", _ReportCls, UploadCancellationToken.Token)
+    Async Sub Search()
+        Dim result = Await MyClient.Search("keyword", FilterEnum.all, SortEnum.Name, 600)
+    End Sub
+```
+```vb.net
+    Async Sub Upload_Local_WithProgressTracking()
+        Dim UploadCancellationToken As New Threading.CancellationTokenSource()
+        Dim _ReportCls As New Progress(Of FlipDriveSDK.ReportStatus)(Sub(ReportClass As FlipDriveSDK.ReportStatus)
+                                                                         Label1.Text = String.Format("{0}/{1}", (ReportClass.BytesTransferred), (ReportClass.TotalBytes))
+                                                                         ProgressBar1.Value = CInt(ReportClass.ProgressPercentage)
+                                                                         Label2.Text = CStr(ReportClass.TextStatus)
+                                                                     End Sub)
+        Await MyClient.Upload("J:\DB\myvideo.mp4", UploadTypes.FilePath, "folder id", "myvideo.mp4", _ReportCls, UploadCancellationToken.Token)
+    End Sub
+```
+```vb.net
+    Async Sub Download_File_WithProgressTracking()
+        Dim DownloadCancellationToken As New Threading.CancellationTokenSource()
+        Dim _ReportCls As New Progress(Of FlipDriveSDK.ReportStatus)(Sub(ReportClass As FlipDriveSDK.ReportStatus)
+                                                                         Label1.Text = String.Format("{0}/{1}", (ReportClass.BytesTransferred), (ReportClass.TotalBytes))
+                                                                         ProgressBar1.Value = CInt(ReportClass.ProgressPercentage)
+                                                                         Label2.Text = CStr(ReportClass.TextStatus)
+                                                                     End Sub)
+        Await MyClient.Download("file id", "J:\DB\", "myvideo.mp4", _ReportCls, DownloadCancellationToken.Token)
+    End Sub
+```
+```vb.net
+    Async Sub AddFileToFavorite()
+        Dim result = Await MyClient.AddToFavorite(New List(Of String) From {"file/folder id"})
+    End Sub
+```
+```vb.net
+    Async Sub RemoveFileFromFavorite()
+        Dim result = Await MyClient.RemoveFromFavorite(New List(Of String) From {"file/folder id"})
+    End Sub
+```
+```vb.net
+    Async Sub ListFavorites()
+        Dim result = Await MyClient.ListFavorites(FilterEnum.all, SortEnum.Name, 200)
+        For Each vid In result.data.items
+            DataGridView1.Rows.Add(vid.name, vid.ID, vid.link, vid.size)
+        Next
+    End Sub
 ```
