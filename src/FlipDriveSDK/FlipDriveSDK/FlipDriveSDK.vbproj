@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>FlipDriveSDK is a .Net library for FlipDrive.com file cloud service.</Description>
+    <Copyright>Copyright © 2019 DeQmaTech LLC.</Copyright>
+    <AssemblyTitle>FlipDriveSDK</AssemblyTitle>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <VersionPrefix>1.2.0</VersionPrefix>
+    <Title>FlipDriveSDK</Title>
+    <Authors>DeQmaTech LLC.</Authors>
+    <AssemblyName>FlipDriveSDK</AssemblyName>
+    <PackageProjectUrl>https://github.com/jamesheck2019/FlipDriveSDK</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/jamesheck2019/FlipDriveSDK/LICENSE</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>FlipDrive;netstandard;cloud-storage</PackageTags>
+    <RepositoryUrl>https://github.com/jamesheck2019/FlipDriveSDK</RepositoryUrl>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <RootNamespace>FlipDriveSDK</RootNamespace>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.1;net452</TargetFrameworks>
+    <PackageId>DeQmaTech.FlipDriveSDK</PackageId>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+<ItemGroup>
+  <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.3" />
+</ItemGroup>
+
+</Project>
